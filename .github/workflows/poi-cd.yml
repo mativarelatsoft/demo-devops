@@ -13,12 +13,12 @@ env:
   ACR_URL: 'openhackxqzxmauhbxtiiacr.azurecr.io'
   
   on:
-  workflow_dispatch:
-    inputs:
-      reason:
-        description: 'Reason'
-        required: true
-        default: 'N/A'
+    workflow_dispatch:
+      inputs:
+        reason:
+          description: 'Reason'
+          required: true
+          default: 'N/A'
         
   jobs:
   #Job 1/
