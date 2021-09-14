@@ -1,0 +1,53 @@
+name: API POI CD
+
+env:
+  poi_path: apis/poi/**
+  registry: openhackxqzxmauhbxtiiacr.azurecr.io
+  repository: devopsoh/api-poi
+  docker_path: apis/poi/web
+  staging_url: https://openhackdevopsapp-poi-0x001-staging.azurewebsites.net
+  prod_url: hhttps://openhackdevopsapp-poi-0x001.azurewebsites.net
+  resource_group: rgOpenHackDevOps20
+  webapp_name: openhackdevopsapp-poi-0x001
+  build_name: POI
+  ACR_URL: 'openhackxqzxmauhbxtiiacr.azurecr.io'
+  
+  on:
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Reason'
+        required: true
+        default: 'N/A'
+        
+  jobs:
+  #Job 1/
+  docker_build_and_push:
+     if: github.ref == 'refs/heads/master'
+     name: Docker Build Push & Web App Statging
+     runs-on: ubuntu-latest
+     
+     steps:
+     - uses: actions/checkout@v2
+
+     - shell: bash
+       name: Docker Login
+       env:
+         ACR_KEY: ${{ secrets.ACR_KEY }}
+         DOCKER_USER: ${{ secrets.DOCKER_USER }}
+         ACR: ${{ env.ACR_URL}}
+       run: docker login "$ACR" -u "$DOCKER_USER" -p "$ACR_KEY"
+       
+      - shell: bash
+       name: Docker Build
+       env:
+         ACR: ${{ env.ACR_URL}}
+       run: docker build -t "$ACR"/devopsoh/api-poi:${{github.run_number}} -t "$ACR"/devopsoh/api-poi:latest --build-arg build_version=${{github.run_number}} apis/poi/web 
+       
+        - shell: bash
+       name: Docker Push
+       env:
+         ACR: ${{ env.ACR_URL}}      
+       run: |
+        docker push "$ACR"/devopsoh/api-poi:${{github.run_number}}
+        docker push "$ACR"/devopsoh/api-poi:latest
